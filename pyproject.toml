@@ -5,11 +5,14 @@ requires-python = ">=3.11"
 dependencies = [
     "ege-api",
     "ege-shared",
+    "tg-bot-service",
 ]
 
 [tool.uv.sources]
 ege-api = { workspace = true }
 ege-shared = { workspace = true }
+tg-bot-service = { workspace = true }
+
 
 [tool.uv.workspace]
-members = ["api_service", "shared"]
+members = ["api_service", "shared", "tg_bot_service", ]
