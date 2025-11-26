@@ -27,3 +27,14 @@ async def register_user(data: UserCreate) -> User:
         await user.save()
 
     return user
+
+async def get_user(telegram_id: int = None, vk_id: int = None) -> User | None:
+    filter_kwargs = {}
+    if telegram_id:
+        filter_kwargs["telegram_id"] = telegram_id
+    elif vk_id:
+        filter_kwargs["vk_id"] = vk_id
+    else:
+        return None
+
+    return await User.get_or_none(**filter_kwargs)

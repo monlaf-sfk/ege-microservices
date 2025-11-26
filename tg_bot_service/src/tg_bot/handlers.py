@@ -10,6 +10,12 @@ from ege_shared.schemas import SubjectEnum
 
 router = Router()
 
+async def ensure_registered(message: Message, api_client: APIClient) -> bool:
+    is_registered = await api_client.check_user_exists(telegram_id=message.from_user.id)
+    if not is_registered:
+        await message.answer("⛔️ Сначала нужно зарегистрироваться! Нажмите /register")
+        return False
+    return True
 
 
 @router.message(Command("start"))
@@ -50,7 +56,10 @@ async def process_name(message: Message, state: FSMContext, api_client: APIClien
 
 
 @router.message(Command("enter_scores"))
-async def cmd_enter_scores(message: Message, state: FSMContext):
+async def cmd_enter_scores(message: Message, state: FSMContext , api_client: APIClient):
+    if not await ensure_registered(message, api_client):
+        return
+
     await message.answer("Выберите предмет:", reply_markup=get_subjects_kb())
     await state.set_state(ScoreState.waiting_for_subject)
 
@@ -98,6 +107,8 @@ async def process_score(message: Message, state: FSMContext, api_client: APIClie
 
 @router.message(Command("view_scores"))
 async def cmd_view_scores(message: Message, api_client: APIClient):
+    if not await ensure_registered(message, api_client):
+        return
     try:
         scores = await api_client.get_my_scores(telegram_id=message.from_user.id)
 

@@ -6,13 +6,14 @@ dependencies = [
     "ege-api",
     "ege-shared",
     "tg-bot-service",
+    "vk-bot-service"
 ]
 
 [tool.uv.sources]
 ege-api = { workspace = true }
 ege-shared = { workspace = true }
 tg-bot-service = { workspace = true }
-
+vk-bot-service = { workspace = true }
 
 [tool.uv.workspace]
-members = ["api_service", "shared", "tg_bot_service", ]
+members = ["api_service", "shared", "tg_bot_service", "vk_bot_service"]
