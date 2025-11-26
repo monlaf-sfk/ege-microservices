@@ -2,6 +2,11 @@ from vkbottle.bot import BotLabeler, Message
 from vk_bot.states import ScoreState
 from vk_bot.loader import api_client, bot, ctx
 from vk_bot.keyboard import get_menu_kb, get_subjects_kb
+from loguru import logger
+import sys
+
+logger.remove()
+logger.add(sys.stderr, level="INFO")
 
 labeler = BotLabeler()
 
@@ -41,8 +46,10 @@ async def process_score_value(message: Message):
 
     try:
         await api_client.add_score(message.from_id, subject, score)
+        logger.info(f"Score added for {message.from_id}: {subject} - {score}")
         await message.answer(f"✅ Балл сохранен!", keyboard=get_menu_kb())
     except Exception as e:
+        logger.error(f"Failed to add score for {message.from_id}: {e}")
         await message.answer(f"❌ Ошибка: {e}", keyboard=get_menu_kb())
 
     await bot.state_dispenser.delete(message.peer_id)

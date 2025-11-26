@@ -1,5 +1,6 @@
 import aiohttp
 from typing import List
+from loguru import logger
 from ege_shared.schemas import UserCreate, UserResponse, ScoreCreate, ScoreResponse
 
 class APIClient:
@@ -8,12 +9,18 @@ class APIClient:
 
     async def _post(self, endpoint: str, data: dict):
         async with aiohttp.ClientSession() as session:
+            url = f"{self.base_url}{endpoint}"
+            logger.debug(f"POST {url} | Data: {data}")
+
             async with session.post(f"{self.base_url}{endpoint}", json=data) as resp:
                 resp.raise_for_status()
                 return await resp.json()
 
     async def _get(self, endpoint: str, params: dict = None):
         async with aiohttp.ClientSession() as session:
+            url = f"{self.base_url}{endpoint}"
+            logger.debug(f"GET {url} | Params: {params}")
+
             async with session.get(f"{self.base_url}{endpoint}", params=params) as resp:
                 resp.raise_for_status()
                 return await resp.json()

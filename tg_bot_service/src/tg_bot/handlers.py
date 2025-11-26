@@ -3,6 +3,8 @@ from aiogram.filters import Command
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 
+from loguru import logger
+
 from tg_bot.states import RegistrationState, ScoreState
 from tg_bot.client import APIClient
 from tg_bot.keyboards import get_subjects_kb
@@ -20,6 +22,8 @@ async def ensure_registered(message: Message, api_client: APIClient) -> bool:
 
 @router.message(Command("start"))
 async def cmd_start(message: Message):
+    logger.info(f"User {message.from_user.id} (@{message.from_user.username}) started bot")
+
     await message.answer(
         "Привет! Я бот для учета баллов ЕГЭ.\n"
         "Доступные команды:\n"
@@ -32,12 +36,16 @@ async def cmd_start(message: Message):
 
 @router.message(Command("register"))
 async def cmd_register(message: Message, state: FSMContext):
+    logger.info(f"User {message.from_user.id} trying to register: {message.text}")
+
     await message.answer("Введите ваше Имя и Фамилию (например: Иван Иванов):")
     await state.set_state(RegistrationState.waiting_for_name)
 
 
 @router.message(RegistrationState.waiting_for_name)
 async def process_name(message: Message, state: FSMContext, api_client: APIClient):
+    logger.info(f"User {message.from_user.id} trying to register: {message.text}")
+
     parts = message.text.split()
     first_name = parts[0]
     last_name = parts[1] if len(parts) > 1 else None
@@ -49,7 +57,9 @@ async def process_name(message: Message, state: FSMContext, api_client: APIClien
             last_name=last_name
         )
         await message.answer(f"✅ Успешно! Вы зарегистрированы как {user.first_name}.")
+        logger.success(f"User {message.from_user.id} registered successfully. ID: {user.id}")
     except Exception as e:
+        logger.error(f"Registration failed for {message.from_user.id}: {e}")
         await message.answer(f"❌ Ошибка регистрации: {e}")
 
     await state.clear()
@@ -98,8 +108,10 @@ async def process_score(message: Message, state: FSMContext, api_client: APIClie
             subject=subject,
             score=score
         )
+        logger.info(f"Score added for {message.from_user.id}: {subject} - {score}")
         await message.answer(f"✅ Балл по предмету '{subject}' сохранен: {score}")
     except Exception as e:
+        logger.error(f"Failed to add score for {message.from_user.id}: {e}")
         await message.answer(f"❌ Ошибка API: {e}")
 
     await state.clear()

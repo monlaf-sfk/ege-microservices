@@ -1,5 +1,6 @@
 import aiohttp
 from typing import List
+from loguru import logger
 from ege_shared.schemas import UserCreate, UserResponse, ScoreCreate, ScoreResponse
 
 class APIClient:
@@ -10,6 +11,8 @@ class APIClient:
         """Внутренний метод для POST запросов"""
         async with aiohttp.ClientSession() as session:
             url = f"{self.base_url}{endpoint}"
+            logger.debug(f"POST {url} | Data: {data}")
+
             async with session.post(url, json=data) as resp:
                 resp.raise_for_status()
                 return await resp.json()
@@ -18,6 +21,8 @@ class APIClient:
         """Внутренний метод для GET запросов"""
         async with aiohttp.ClientSession() as session:
             url = f"{self.base_url}{endpoint}"
+            logger.debug(f"GET {url} | Params: {params}")
+
             async with session.get(url, params=params) as resp:
                 resp.raise_for_status()
                 return await resp.json()
