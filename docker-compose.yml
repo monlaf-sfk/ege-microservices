@@ -1,14 +1,62 @@
 services:
   db:
     image: postgres:15-alpine
-    ports:
-      - "5433:5432"
+    container_name: ege_db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ege_db
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-ege_db}
+    ports:
+      - "${DB_PORT:-5433}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: api_service/Dockerfile
+    container_name: ege_api
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-ege_db}
+    env_file: .env
+
+  tg_bot:
+    build:
+      context: .
+      dockerfile: tg_bot_service/Dockerfile
+    container_name: ege_tg_bot
+    depends_on:
+      - api
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      API_BASE_URL: "http://api:8000/api/v1"
+    env_file: .env
+
+  vk_bot:
+    build:
+      context: .
+      dockerfile: vk_bot_service/Dockerfile
+    container_name: ege_vk_bot
+    depends_on:
+      - api
+    environment:
+      VK_BOT_TOKEN: ${VK_BOT_TOKEN}
+      API_BASE_URL: "http://api:8000/api/v1"
+    env_file: .env
 
 volumes:
   pgdata:
