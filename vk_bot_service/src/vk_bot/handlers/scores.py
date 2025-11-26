@@ -1,3 +1,4 @@
+from ege_shared.consts import SUBJECT_NAMES
 from vkbottle.bot import BotLabeler, Message
 from vk_bot.states import ScoreState
 from vk_bot.loader import api_client, bot, ctx
@@ -29,7 +30,12 @@ async def start_score(message: Message):
 
 @labeler.message(state=ScoreState.SUBJECT)
 async def process_subject(message: Message):
-    ctx.set(message.peer_id, {"subject": message.text})
+    selected_subject = next(
+        enum_obj for enum_obj, text in SUBJECT_NAMES.items()
+        if text == message.text
+    )
+
+    ctx.set(message.peer_id, {"subject": selected_subject.value})
     await message.answer("Введите балл (0-100):")
     await bot.state_dispenser.set(message.peer_id, ScoreState.SCORE)
 
@@ -41,6 +47,10 @@ async def process_score_value(message: Message):
         return
 
     score = int(message.text)
+    if not (0 <= score <= 100):
+        await message.answer("Балл должен быть от 0 до 100.")
+        return
+
     data = ctx.get(message.peer_id)
     subject = data.get("subject")
 

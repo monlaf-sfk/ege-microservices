@@ -8,7 +8,7 @@ from loguru import logger
 from tg_bot.states import RegistrationState, ScoreState
 from tg_bot.client import APIClient
 from tg_bot.keyboards import get_subjects_kb
-from ege_shared.schemas import SubjectEnum
+from ege_shared.consts import SUBJECT_NAMES
 
 router = Router()
 
@@ -77,9 +77,12 @@ async def cmd_enter_scores(message: Message, state: FSMContext , api_client: API
 @router.message(ScoreState.waiting_for_subject)
 async def process_subject(message: Message, state: FSMContext):
     try:
-        selected_subject = next(s for s in SubjectEnum if s.value == message.text)
 
-        await state.update_data(subject=selected_subject.name.lower())
+        selected_subject = next(
+            enum_obj for enum_obj, text in SUBJECT_NAMES.items()
+            if text == message.text
+        )
+        # await state.update_data(subject=selected_subject.name.lower())
         await state.update_data(subject=selected_subject.value)
 
         await message.answer("Введите балл (0-100):", reply_markup=ReplyKeyboardRemove())

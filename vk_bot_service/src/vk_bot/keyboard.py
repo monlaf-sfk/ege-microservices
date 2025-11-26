@@ -1,5 +1,7 @@
+from ege_shared.consts import SUBJECT_NAMES
 from vkbottle import Keyboard, Text, KeyboardButtonColor
 from ege_shared.schemas import SubjectEnum
+
 
 def get_menu_kb():
     return (
@@ -14,6 +16,6 @@ def get_menu_kb():
 def get_subjects_kb():
     kb = Keyboard(one_time=True)
     for subject in SubjectEnum:
-        kb.add(Text(subject.value))
+        kb.add(Text(SUBJECT_NAMES[subject]))
         kb.row()
     return kb
