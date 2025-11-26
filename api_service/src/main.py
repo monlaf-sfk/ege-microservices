@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 from api_service.src.config import settings
-from api_service.src.routes import users
+from api_service.src.routes import users, scores
+
 
 app = FastAPI(title="EGE Scoring API")
 
 app.include_router(users.router, prefix="/api/v1")
+app.include_router(scores.router, prefix="/api/v1")
 
 register_tortoise(
     app,

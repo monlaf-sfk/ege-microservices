@@ -1,5 +1,7 @@
 from tortoise import fields, models
+
 from ege_shared.consts import SubjectEnum
+
 
 class User(models.Model):
     id = fields.IntField(pk=True)
@@ -18,7 +20,7 @@ class Score(models.Model):
     id = fields.IntField(pk=True)
     user = fields.ForeignKeyField("models.User", related_name="scores")
     subject = fields.CharEnumField(SubjectEnum, max_length=50)
-    value = fields.IntField() # Балл (0-100)
+    score = fields.IntField() # Балл (0-100)
     updated_at = fields.DatetimeField(auto_now=True)
 
     class Meta:

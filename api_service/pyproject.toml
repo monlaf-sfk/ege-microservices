@@ -8,9 +8,14 @@ dependencies = [
     "aerich",
     "asyncpg",
     "pydantic-settings",
+    "tomlkit>=0.13.3",
     "ege-shared",
 ]
 
-[tool.uv.sources]
-ege-shared = { workspace = true }
+[tool.uv.sources.ege-shared]
+workspace = true
 
+[tool.aerich]
+tortoise_orm = "api_service.src.database.TORTOISE_ORM"
+location = "./migrations"
+src_folder = "./src"
