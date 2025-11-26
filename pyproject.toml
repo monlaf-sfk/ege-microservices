@@ -1,0 +1,12 @@
+[project]
+name = "scoring-system"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv.workspace]
+members = ["api_service", "shared"]
+[tool.aerich]
+tortoise_orm = "api_service.src.database.TORTOISE_ORM"
+location = "./migrations"
+src_folder = "./."
